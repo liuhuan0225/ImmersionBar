@@ -91,6 +91,10 @@ afterEvaluate {
             }
         }
     }
+    // 确保发布任务在打包之后执行
+    tasks.named('publishReleasePublicationToMavenLocal') {
+        dependsOn('assembleRelease')
+    }
 }
 dependencies {
     compileOnly 'androidx.appcompat:appcompat:1.4.1'

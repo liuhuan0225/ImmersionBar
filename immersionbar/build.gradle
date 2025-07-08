@@ -20,27 +20,78 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
-    android.libraryVariants.configureEach { variant ->
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    libraryVariants.configureEach { variant ->
         // aar 输出文件名配置
         variant.outputs.configureEach { output ->
-            outputFileName = "${rootProject.name}-${android.defaultConfig.versionName}.aar"
+            outputFileName = "immersionbar.aar"
         }
     }
 }
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            // 创建名为"release"的发布配置
-//            release(MavenPublication) {
-//                from components.release  // 发布release变体
-//                groupId = 'com.github.liuhuan0225'
-//                artifactId = 'ImmersionBar'
-//                version = android.defaultConfig.versionName // 使用版本名称
-//            }
-//        }
-//    }
-//}
 
+afterEvaluate {
+    publishing {
+        publications {
+            // 创建名为"release"的发布
+            release(MavenPublication) {
+                // 指定group/artifact/version
+                groupId = 'com.github.liuhuan0225'
+                artifactId = 'immersionbar'
+                version = android.defaultConfig.versionName
+
+                // 主AAR构件：取自release构建类型的输出
+                artifact("$buildDir/outputs/aar/immersionbar.aar")
+                // 附加源码和文档（可选）
+//                artifact sourcesJar
+                // artifact javadocJar  // 如果不需要文档，可以注释掉
+
+                // 配置POM文件（必需）
+                pom {
+                    name = 'immersionbar'
+                    description = 'A library for Android immersion bar management'
+                    url = 'https://github.com/liuhuan0225/ImmersionBar'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'gyf'
+                            name = 'gyf'
+                            email = 'gyf@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git://github.com/liuhuan0225/ImmersionBar.git'
+                        developerConnection = 'scm:git:ssh://github.com/liuhuan0225/ImmersionBar.git'
+                        url = 'https://github.com/liuhuan0225/ImmersionBar'
+                    }
+                }
+
+                // 处理传递依赖（重要！）
+                pom.withXml {
+                    final dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each {
+                        if (it.name != 'unspecified') {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 dependencies {
     compileOnly 'androidx.appcompat:appcompat:1.4.1'
 }

@@ -4,6 +4,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 35
+    namespace = "com.gyf.immersionbar"
 
     defaultConfig {
         minSdkVersion 14

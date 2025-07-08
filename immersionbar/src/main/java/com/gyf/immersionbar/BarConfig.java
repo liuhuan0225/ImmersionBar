@@ -11,14 +11,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Insets;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
  * The type Bar config.
@@ -69,9 +74,11 @@ class BarConfig {
         return result;
     }
 
-    @TargetApi(14)
     private int getNavigationBarHeight(Context context) {
         int result = 0;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return getNavigationBarHeightForUPlus(context);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             if (hasNavBar((Activity) context)) {
                 return getNavigationBarHeightInternal(context);
@@ -80,7 +87,19 @@ class BarConfig {
         return result;
     }
 
-    @TargetApi(14)
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private  int getNavigationBarHeightForUPlus(@NonNull Context context) {
+        // 获取 WindowManager 服务
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        // 获取当前窗口的 WindowMetrics
+        WindowMetrics windowMetrics = windowManager.getCurrentWindowMetrics();
+
+        // 获取窗口的 WindowInsets
+        WindowInsets windowInsets = windowMetrics.getWindowInsets();
+        Insets navigationBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+        // 返回导航栏底部高度
+        return navigationBars.bottom;
+    }
     private int getNavigationBarWidth(Context context) {
         int result = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {

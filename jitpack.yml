@@ -1,2 +1,5 @@
 jdk:
   - openjdk17
+
+#install:
+#  - ./gradlew :immersionbar:clean :immersionbar:publishToMavenLocal -Pgroup=com.github.liuhuan0225 -Pversion=${VERSION}

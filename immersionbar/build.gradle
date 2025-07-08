@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 //apply plugin: 'com.github.dcendents.android-maven'
 //group='com.github.liuhuan0225'
 
@@ -9,7 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 35
-
+        version "3.3.2"
+        versionCode 1
         consumerProguardFiles "consumer-rules.pro"
     }
     lintOptions {
@@ -18,7 +20,26 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
+    android.libraryVariants.configureEach { variant ->
+        // aar 输出文件名配置
+        variant.outputs.configureEach { output ->
+            outputFileName = "${rootProject.name}-${android.defaultConfig.versionName}.aar"
+        }
+    }
 }
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            // 创建名为"release"的发布配置
+//            release(MavenPublication) {
+//                from components.release  // 发布release变体
+//                groupId = 'com.github.liuhuan0225'
+//                artifactId = 'ImmersionBar'
+//                version = android.defaultConfig.versionName // 使用版本名称
+//            }
+//        }
+//    }
+//}
 
 dependencies {
     compileOnly 'androidx.appcompat:appcompat:1.4.1'
